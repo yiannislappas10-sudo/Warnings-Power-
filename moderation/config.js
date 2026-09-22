@@ -14,6 +14,9 @@ module.exports.MUTED_ROLE_ID = process.env.MUTED_ROLE_ID || "";
 // Role used by /jail and /unjail.
 module.exports.JAILED_ROLE_ID = process.env.JAILED_ROLE_ID || "";
 
+// Only this channel remains visible and writable while a member is jailed.
+module.exports.JAIL_CHANNEL_ID = process.env.JAIL_CHANNEL_ID || "";
+
 // Offense type -> points added when /warn is used with that option.
 // "bypass" offenses skip the point ladder entirely and act immediately.
 module.exports.OFFENSES = {

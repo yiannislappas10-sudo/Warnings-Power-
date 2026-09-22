@@ -13,6 +13,7 @@ Discord rules and moderation bot with department rules, warning points, escalati
    - `MOD_LOG_CHANNEL_ID`: channel ID for moderation logs.
    - `MUTED_ROLE_ID`: role ID used by `/mute` and `/unmute`.
    - `JAILED_ROLE_ID`: role ID used by `/jail` and `/unjail`.
+   - `JAIL_CHANNEL_ID`: the only text channel jailed members can see and speak in.
    - `DATA_FILE=/data/moderation.json`: stores warning points and history on the Volume.
 4. In Railway, open the service shell or run the deploy command locally once:
 
@@ -31,3 +32,6 @@ The Discord bot must be invited with the `bot` and `applications.commands` scope
 Rules: `/security-rules`, `/research-rules`, `/medical-rules`, `/technical-rules`, `/janitor-rules`.
 
 Moderation: `/warn`, `/warnings`, `/clearwarnings`, `/timeout`, `/mute`, `/unmute`, `/jail`, `/unjail`, `/ban`, `/unban`, and `/hackban`.
+
+
+Jailing removes assignable roles, saves them in `DATA_FILE`, applies member-specific restrictions to text channels, and restores the saved roles when `/unjail` is used. The bot needs Manage Roles and Manage Channels, and its role must be above the jailed role and the roles it needs to remove.

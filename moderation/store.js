@@ -69,4 +69,22 @@ function clearUnban(guildId, userId, unbanAt) {
   save(data);
 }
 
-module.exports = { getUser, addWarning, resetUser, scheduleUnban, getDueUnbans, clearUnban };
+function saveJailState(guildId, userId, roleIds) {
+  const data = load();
+  if (!data.jailedUsers) data.jailedUsers = {};
+  data.jailedUsers[`${guildId}:${userId}`] = { roleIds, savedAt: Date.now() };
+  save(data);
+}
+
+function getJailState(guildId, userId) {
+  const data = load();
+  return data.jailedUsers?.[`${guildId}:${userId}`] || null;
+}
+
+function clearJailState(guildId, userId) {
+  const data = load();
+  if (data.jailedUsers) delete data.jailedUsers[`${guildId}:${userId}`];
+  save(data);
+}
+
+module.exports = { getUser, addWarning, resetUser, scheduleUnban, getDueUnbans, clearUnban, saveJailState, getJailState, clearJailState };
