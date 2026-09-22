@@ -14,7 +14,7 @@ module.exports = {
     if (!MUTED_ROLE_ID) {
       await interaction.reply({
         content: "MUTED_ROLE_ID isn't set yet — add it as an env var or in moderation/config.js.",
-        flags: MessageFlags.Ephemeral,
+
       });
       return;
     }
@@ -22,7 +22,7 @@ module.exports = {
     const targetUser = interaction.options.getUser("user");
     const reason = interaction.options.getString("reason");
 
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
 
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     if (!member) {

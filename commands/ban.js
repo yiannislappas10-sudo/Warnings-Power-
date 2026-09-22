@@ -13,7 +13,7 @@ module.exports = {
     const targetUser = interaction.options.getUser("user");
     const reason = interaction.options.getString("reason");
 
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
 
     try {
       await interaction.guild.members.ban(targetUser.id, { reason });

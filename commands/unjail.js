@@ -14,13 +14,13 @@ module.exports = {
     if (!JAILED_ROLE_ID || !JAIL_CHANNEL_ID) {
       await interaction.reply({
         content: "JAILED_ROLE_ID and JAIL_CHANNEL_ID must be configured before using /unjail.",
-        flags: MessageFlags.Ephemeral,
+
       });
       return;
     }
 
     const targetUser = interaction.options.getUser("user");
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     const me = interaction.guild.members.me;
     if (!member || !me) {
@@ -32,10 +32,15 @@ module.exports = {
     try {
       await member.roles.remove(JAILED_ROLE_ID, "Member unjailed");
       if (state?.roleIds?.length) {
-        const roles = state.roleIds
-          .map((id) => interaction.guild.roles.cache.get(id))
-          .filter((role) => role && !role.managed && role.position < me.roles.highest.position);
-        if (roles.length) await member.roles.add(roles, "Restore roles after jail");
+        const roles = await Promise.all(
+          state.roleIds.map((id) => interaction.guild.roles.fetch(id).catch(() => null))
+        );
+        const restorableRoles = roles.filter(
+          (role) => role && !role.managed && role.position < me.roles.highest.position
+        );
+        if (restorableRoles.length) {
+          await member.roles.add(restorableRoles, "Restore roles after jail");
+        }
       }
       const channels = await interaction.guild.channels.fetch();
       for (const channel of channels.values()) {
@@ -54,6 +59,9 @@ module.exports = {
       moderator: `${interaction.user.tag}`,
       reason: "—",
     });
-    await interaction.editReply(`${targetUser.tag} has been unjailed and their previous roles were restored.`);
+    const restoreNote = state
+      ? "their saved roles were restored"
+      : "no saved role snapshot was found, so roles must be restored manually";
+    await interaction.editReply(`${targetUser.tag} has been unjailed; ${restoreNote}.`);
   },
 };

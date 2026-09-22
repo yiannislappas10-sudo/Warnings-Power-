@@ -87,7 +87,7 @@ client.on("interactionCreate", async (interaction) => {
       if (requiredPermission && !interaction.memberPermissions?.has(requiredPermission)) {
         await interaction.reply({
           content: "You can see this command, but you do not have permission to use it.",
-          flags: MessageFlags.Ephemeral,
+
         });
         return;
       }
@@ -105,7 +105,7 @@ client.on("interactionCreate", async (interaction) => {
       if (!chosen) {
         await interaction.reply({
           content: "Couldn't find that rule. Try again.",
-          flags: MessageFlags.Ephemeral,
+
         });
         return;
       }
@@ -120,7 +120,7 @@ client.on("interactionCreate", async (interaction) => {
 
       await interaction.reply({
         components: [container],
-        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        flags: MessageFlags.IsComponentsV2,
       });
       return;
     }
@@ -133,7 +133,7 @@ client.on("interactionCreate", async (interaction) => {
 
       await interaction.reply({
         components: [container],
-        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        flags: MessageFlags.IsComponentsV2,
       });
       return;
     }
@@ -146,7 +146,7 @@ client.on("interactionCreate", async (interaction) => {
       if (!pendingAction) {
         await interaction.reply({
           content: "This confirmation has expired. Please run /warn again.",
-          flags: MessageFlags.Ephemeral,
+
         });
         return;
       }
@@ -219,7 +219,7 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
       await interaction.reply({
         content: "Something went wrong. Please try again.",
-        flags: MessageFlags.Ephemeral,
+
       });
     }
   }

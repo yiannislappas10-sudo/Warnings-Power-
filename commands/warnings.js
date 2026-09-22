@@ -15,7 +15,7 @@ module.exports = {
     if (record.history.length === 0) {
       await interaction.reply({
         content: `${targetUser.tag} has no warnings on record.`,
-        flags: MessageFlags.Ephemeral,
+
       });
       return;
     }
@@ -29,7 +29,7 @@ module.exports = {
 
     await interaction.reply({
       content: `**${targetUser.tag}** — Total points: **${record.points}**\n\n${lines}`,
-      flags: MessageFlags.Ephemeral,
+
     });
   },
 };

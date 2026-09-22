@@ -22,7 +22,7 @@ module.exports = {
 
     await interaction.reply({
       content: `${targetUser.tag}'s warning points have been reset to 0.`,
-      flags: MessageFlags.Ephemeral,
+
     });
   },
 };

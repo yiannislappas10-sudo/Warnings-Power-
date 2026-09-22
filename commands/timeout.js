@@ -38,7 +38,7 @@ module.exports = {
     const reason = interaction.options.getString("reason");
     const ms = DURATIONS[durationKey];
 
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
 
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     if (!member) {

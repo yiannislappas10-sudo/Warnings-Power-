@@ -11,7 +11,7 @@ module.exports = {
   async execute(interaction) {
     const userId = interaction.options.getString("userid");
 
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
 
     if (!/^\d{15,25}$/.test(userId)) {
       await interaction.editReply("That doesn't look like a valid Discord user ID.");

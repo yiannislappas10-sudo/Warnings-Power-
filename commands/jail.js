@@ -40,14 +40,14 @@ module.exports = {
     if (!JAILED_ROLE_ID || !JAIL_CHANNEL_ID) {
       await interaction.reply({
         content: "JAILED_ROLE_ID and JAIL_CHANNEL_ID must be configured before using /jail.",
-        flags: MessageFlags.Ephemeral,
+
       });
       return;
     }
 
     const targetUser = interaction.options.getUser("user");
     const reason = interaction.options.getString("reason");
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
 
     const member = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
     const me = interaction.guild.members.me;
@@ -73,10 +73,10 @@ module.exports = {
     const savedRoleIds = removableRoleList.map((role) => role.id);
 
     try {
+      saveJailState(interaction.guild.id, member.id, savedRoleIds);
       await member.roles.remove(removableRoleList, reason);
       await member.roles.add(JAILED_ROLE_ID, reason);
       await setJailChannelAccess(interaction.guild, member.id, false);
-      saveJailState(interaction.guild.id, member.id, savedRoleIds);
     } catch (err) {
       await interaction.editReply(`Couldn't jail this user safely: ${err.message}`);
       return;
