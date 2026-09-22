@@ -60,13 +60,20 @@ module.exports = {
       return;
     }
 
+    const jailChannel = await interaction.guild.channels.fetch(JAIL_CHANNEL_ID).catch(() => null);
+    if (!jailChannel || !jailChannel.isTextBased()) {
+      await interaction.editReply("JAIL_CHANNEL_ID does not point to a text-based channel.");
+      return;
+    }
+
     const removableRoles = member.roles.cache.filter(
       (role) => role.id !== interaction.guild.id && !role.managed && role.position < me.roles.highest.position
     );
-    const savedRoleIds = [...removableRoles.keys()];
+    const removableRoleList = [...removableRoles.values()];
+    const savedRoleIds = removableRoleList.map((role) => role.id);
 
     try {
-      await member.roles.remove(removableRoles, reason);
+      await member.roles.remove(removableRoleList, reason);
       await member.roles.add(JAILED_ROLE_ID, reason);
       await setJailChannelAccess(interaction.guild, member.id, false);
       saveJailState(interaction.guild.id, member.id, savedRoleIds);
