@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("hackban")
     .setDescription("Ban a user by ID, even if they're not currently in the server.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .setDefaultMemberPermissions(null)
     .addStringOption((o) => o.setName("userid").setDescription("The user's Discord ID").setRequired(true))
     .addStringOption((o) => o.setName("reason").setDescription("Reason").setRequired(true)),
 

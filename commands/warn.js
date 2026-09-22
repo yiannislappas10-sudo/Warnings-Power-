@@ -18,7 +18,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("warn")
     .setDescription("Warn a member and apply points toward the escalation ladder.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(null)
     .addUserOption((o) => o.setName("user").setDescription("Member to warn").setRequired(true))
     .addStringOption((o) =>
       o

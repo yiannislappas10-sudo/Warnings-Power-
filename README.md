@@ -35,3 +35,15 @@ Moderation: `/warn`, `/warnings`, `/clearwarnings`, `/timeout`, `/mute`, `/unmut
 
 
 Jailing removes assignable roles, saves them in `DATA_FILE`, applies member-specific restrictions to text channels, and restores the saved roles when `/unjail` is used. The bot needs Manage Roles and Manage Channels, and its role must be above the jailed role and the roles it needs to remove.
+
+All slash commands are visible in the command list. Moderation commands still require the appropriate permission when used; visibility does not grant access.
+
+## Persistence variable
+
+In Railway, open the `Warnings-Power-` service, select **Variables**, click **New Variable**, and add:
+
+```text
+DATA_FILE=/data/moderation.json
+```
+
+This variable tells the bot to store warning history and saved jail roles on the Railway Volume. The Volume must be attached to the service with mount path `/data`. Do not put this in Discord or in a source-code file; it belongs in Railway Variables.

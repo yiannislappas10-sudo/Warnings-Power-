@@ -9,6 +9,7 @@ const {
   ContainerBuilder,
   TextDisplayBuilder,
   SeparatorBuilder,
+  PermissionFlagsBits,
 } = require("discord.js");
 const { pointInfoText } = require("./rules.js");
 const { getDueUnbans, clearUnban } = require("./moderation/store.js");
@@ -68,6 +69,29 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
+
+      const requiredPermission = {
+        ban: PermissionFlagsBits.BanMembers,
+        hackban: PermissionFlagsBits.BanMembers,
+        unban: PermissionFlagsBits.BanMembers,
+        clearwarnings: PermissionFlagsBits.ModerateMembers,
+        jail: PermissionFlagsBits.ModerateMembers,
+        mute: PermissionFlagsBits.ModerateMembers,
+        timeout: PermissionFlagsBits.ModerateMembers,
+        unjail: PermissionFlagsBits.ModerateMembers,
+        unmute: PermissionFlagsBits.ModerateMembers,
+        warn: PermissionFlagsBits.ModerateMembers,
+        warnings: PermissionFlagsBits.ModerateMembers,
+      }[interaction.commandName];
+
+      if (requiredPermission && !interaction.memberPermissions?.has(requiredPermission)) {
+        await interaction.reply({
+          content: "You can see this command, but you do not have permission to use it.",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+
       await command.execute(interaction);
       return;
     }

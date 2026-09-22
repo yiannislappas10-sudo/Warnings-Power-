@@ -32,7 +32,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("jail")
     .setDescription("Remove a member's roles and restrict them to the jail channel.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(null)
     .addUserOption((o) => o.setName("user").setDescription("Member to jail").setRequired(true))
     .addStringOption((o) => o.setName("reason").setDescription("Reason").setRequired(true)),
 

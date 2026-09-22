@@ -7,7 +7,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("unjail")
     .setDescription("Restore a member's previous roles and remove jail restrictions.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(null)
     .addUserOption((o) => o.setName("user").setDescription("Member to unjail").setRequired(true)),
 
   async execute(interaction) {

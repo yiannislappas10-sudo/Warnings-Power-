@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("warnings")
     .setDescription("Check a member's warning points and history.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(null)
     .addUserOption((o) => o.setName("user").setDescription("Member to check").setRequired(true)),
 
   async execute(interaction) {

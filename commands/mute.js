@@ -6,7 +6,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("mute")
     .setDescription("Give a member the Muted role (indefinite, until /unmute).")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setDefaultMemberPermissions(null)
     .addUserOption((o) => o.setName("user").setDescription("Member to mute").setRequired(true))
     .addStringOption((o) => o.setName("reason").setDescription("Reason").setRequired(true)),
 

@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("unban")
     .setDescription("Unban a user by ID.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
+    .setDefaultMemberPermissions(null)
     .addStringOption((o) => o.setName("userid").setDescription("The user's Discord ID").setRequired(true)),
 
   async execute(interaction) {
