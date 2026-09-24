@@ -1,31 +1,51 @@
-const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const { JAILED_ROLE_ID, JAIL_CHANNEL_ID } = require("../moderation/config.js");
 const { saveJailState } = require("../moderation/store.js");
 const { sendModLog } = require("../utils/modlog.js");
 
 async function setJailChannelAccess(guild, memberId, allow) {
   if (!JAIL_CHANNEL_ID) return;
+
   const jailChannel = await guild.channels.fetch(JAIL_CHANNEL_ID).catch(() => null);
   if (!jailChannel || !jailChannel.isTextBased()) {
     throw new Error("JAIL_CHANNEL_ID does not point to a text-based channel.");
   }
 
   const channels = await guild.channels.fetch();
+
+  // Discord API requests for different channels can run concurrently.
+  // This avoids waiting for every channel one-by-one.
+  const updates = [];
   for (const channel of channels.values()) {
     if (!channel || !channel.isTextBased() || !channel.permissionOverwrites) continue;
-    await channel.permissionOverwrites.edit(memberId, {
-      ViewChannel: allow ? null : false,
-      SendMessages: allow ? null : false,
-      AddReactions: allow ? null : false,
-      ReadMessageHistory: allow ? null : false,
-    }, { reason: allow ? "Member unjailed" : "Member jailed" });
+
+    updates.push(
+      channel.permissionOverwrites.edit(
+        memberId,
+        {
+          ViewChannel: allow ? null : false,
+          SendMessages: allow ? null : false,
+          AddReactions: allow ? null : false,
+          ReadMessageHistory: allow ? null : false,
+        },
+        { reason: allow ? "Member unjailed" : "Member jailed" }
+      )
+    );
   }
-  await jailChannel.permissionOverwrites.edit(memberId, {
-    ViewChannel: allow ? null : true,
-    SendMessages: allow ? null : true,
-    AddReactions: allow ? null : true,
-    ReadMessageHistory: allow ? null : true,
-  }, { reason: allow ? "Member unjailed" : "Member jailed" });
+
+  await Promise.all(updates);
+
+  // The jail channel must remain accessible while jailed.
+  await jailChannel.permissionOverwrites.edit(
+    memberId,
+    {
+      ViewChannel: allow ? null : true,
+      SendMessages: allow ? null : true,
+      AddReactions: allow ? null : true,
+      ReadMessageHistory: allow ? null : true,
+    },
+    { reason: allow ? "Member unjailed" : "Member jailed" }
+  );
 }
 
 module.exports = {
@@ -40,7 +60,6 @@ module.exports = {
     if (!JAILED_ROLE_ID || !JAIL_CHANNEL_ID) {
       await interaction.reply({
         content: "JAILED_ROLE_ID and JAIL_CHANNEL_ID must be configured before using /jail.",
-
       });
       return;
     }
@@ -55,6 +74,7 @@ module.exports = {
       await interaction.editReply("Couldn't find that member or the bot member.");
       return;
     }
+
     if (member.id === me.id || member.roles.highest.position >= me.roles.highest.position) {
       await interaction.editReply("I cannot safely jail this member because of role hierarchy.");
       return;
@@ -66,28 +86,43 @@ module.exports = {
       return;
     }
 
-    const removableRoles = member.roles.cache.filter(
-      (role) => role.id !== interaction.guild.id && !role.managed && role.position < me.roles.highest.position
+    // Only save roles that the bot can actually restore later.
+    // This snapshot is what /unjail uses to give the member their old roles back.
+    const removableRoleList = [...member.roles.cache.values()].filter(
+      (role) =>
+        role.id !== interaction.guild.id &&
+        !role.managed &&
+        role.position < me.roles.highest.position
     );
-    const removableRoleList = [...removableRoles.values()];
     const savedRoleIds = removableRoleList.map((role) => role.id);
 
     try {
+      // Save the snapshot BEFORE changing the member's roles.
       saveJailState(interaction.guild.id, member.id, savedRoleIds);
-      await member.roles.remove(removableRoleList, reason);
+
+      if (removableRoleList.length) {
+        await member.roles.remove(removableRoleList, reason);
+      }
+
+      // The jailed role is added after the old roles are removed.
       await member.roles.add(JAILED_ROLE_ID, reason);
+
       await setJailChannelAccess(interaction.guild, member.id, false);
     } catch (err) {
       await interaction.editReply(`Couldn't jail this user safely: ${err.message}`);
       return;
     }
 
-    await sendModLog(interaction.client, {
-      action: "🔒 Jail",
+    // Do not make the user wait for the logging request to finish.
+    void sendModLog(interaction.client, {
+      action: "Jail",
       target: `${targetUser.tag} (${targetUser.id})`,
       moderator: `${interaction.user.tag}`,
       reason,
-    });
-    await interaction.editReply(`${targetUser.tag} has been jailed and restricted to <#${JAIL_CHANNEL_ID}>.`);
+    }).catch((err) => console.error("Jail mod-log failed:", err));
+
+    await interaction.editReply(
+      `${targetUser.tag} has been jailed and restricted to <#${JAIL_CHANNEL_ID}>.`
+    );
   },
 };
