@@ -21,6 +21,33 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
+async function sendPrideEvent(interaction, eventName) {
+  const baseUrl = (process.env.PRIDE_API_URL || "").replace(/\/$/, "");
+  const key = process.env.PRIDE_API_KEY;
+  if (!baseUrl || !key || !interaction.guildId) return;
+
+  try {
+    const response = await fetch(baseUrl + "/event", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Pride-Key": key
+      },
+      body: JSON.stringify({
+        guild_id: interaction.guildId,
+        user_id: interaction.user.id,
+        source_bot: "sloth",
+        event: eventName,
+        event_id: "sloth:" + interaction.id,
+        metadata: { command: interaction.commandName }
+      })
+    });
+    if (!response.ok) console.warn("Pride API returned HTTP " + response.status);
+  } catch (error) {
+    console.warn("Could not report event to Pride:", error.message);
+  }
+}
+
 // Load slash commands from /commands
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
@@ -71,6 +98,7 @@ client.on("interactionCreate", async (interaction) => {
   try {
     // Slash commands
     if (interaction.isChatInputCommand()) {
+      void sendPrideEvent(interaction, "command:" + interaction.commandName);
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
 
