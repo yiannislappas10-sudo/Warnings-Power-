@@ -11,21 +11,11 @@ const {
   SeparatorBuilder,
   PermissionFlagsBits,
 } = require("discord.js");
-const { pointInfoText } = require("./rules.js");
 const { getDueUnbans, clearUnban } = require("./moderation/store.js");
 const { OFFENSES } = require("./moderation/config.js");
 const { getPending, deletePending } = require("./moderation/pending.js");
 const { applyBypassBan, applyPointWarning } = require("./moderation/applyWarn.js");
 
-// Every department's rule list, keyed by the deptKey used in that
-// department's command file (must match what's passed to buildRulesContainer).
-const departmentRules = {
-  security: require("./rules.js").rules,
-  research: require("./departments/research.js").rules,
-  medical: require("./departments/medical.js").rules,
-  technical: require("./departments/technical.js").rules,
-  janitor: require("./departments/janitor.js").rules,
-};
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -93,48 +83,6 @@ client.on("interactionCreate", async (interaction) => {
       }
 
       await command.execute(interaction);
-      return;
-    }
-
-    // Rule dropdown selection - customId looks like "rules_select:security"
-    if (interaction.isStringSelectMenu() && interaction.customId.startsWith("rules_select:")) {
-      const deptKey = interaction.customId.split(":")[1];
-      const rules = departmentRules[deptKey];
-
-      const chosen = rules && rules.find((r) => r.value === interaction.values[0]);
-      if (!chosen) {
-        await interaction.reply({
-          content: "Couldn't find that rule. Try again.",
-
-        });
-        return;
-      }
-
-      const bulletText = chosen.bullets.map((b) => `> • ${b}`).join("\n");
-
-      const container = new ContainerBuilder()
-        .setAccentColor(0x000000)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${chosen.title}`))
-        .addSeparatorComponents(new SeparatorBuilder())
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(bulletText));
-
-      await interaction.reply({
-        components: [container],
-        flags: MessageFlags.IsComponentsV2,
-      });
-      return;
-    }
-
-    // Point Info button - shared across every department
-    if (interaction.isButton() && interaction.customId === "point_info") {
-      const container = new ContainerBuilder()
-        .setAccentColor(0x000000)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(pointInfoText));
-
-      await interaction.reply({
-        components: [container],
-        flags: MessageFlags.IsComponentsV2,
-      });
       return;
     }
 
