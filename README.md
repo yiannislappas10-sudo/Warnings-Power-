@@ -29,14 +29,13 @@ The Discord bot must be invited with the `bot` and `applications.commands` scope
 
 ## Commands
 
-Rules: `/security-rules`, `/research-rules`, `/medical-rules`, `/technical-rules`, `/janitor-rules`.
-
 Moderation: `/warn`, `/warnings`, `/clearwarnings`, `/timeout`, `/mute`, `/unmute`, `/jail`, `/unjail`, `/ban`, `/unban`, and `/hackban`.
 
+**Rules are not handled by Sloth.** General, Security, Research, Technical, and Janitor rules are handled by the separate **Wraith / General-Rules** bot.
 
 Jailing removes assignable roles, saves them in `DATA_FILE`, applies member-specific restrictions to text channels, and restores the saved roles when `/unjail` is used. The bot needs Manage Roles and Manage Channels, and its role must be above the jailed role and the roles it needs to remove.
 
-All slash commands are visible in the command list. Moderation commands still require the appropriate permission when used; visibility does not grant access.
+All moderation slash commands are visible in the command list. Moderation commands still require the appropriate permission when used; visibility does not grant access.
 
 ## Persistence variable
 
