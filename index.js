@@ -31,8 +31,22 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
+
+  // Keep the target guild's slash-command list in sync with Sloth's
+  // moderation commands. This also removes obsolete rules commands.
+  if (process.env.GUILD_ID) {
+    try {
+      const guild = await client.guilds.fetch(process.env.GUILD_ID);
+      const commandData = [...client.commands.values()].map((command) => command.data.toJSON());
+      await guild.commands.set(commandData);
+      console.log(`Synced ${commandData.length} moderation command(s) to GUILD_ID=${process.env.GUILD_ID}`);
+    } catch (err) {
+      console.error("Failed to sync guild commands:", err.message);
+    }
+  }
+
   processDueUnbans(); // catch up on anything missed while offline
   setInterval(processDueUnbans, 5 * 60 * 1000); // then check every 5 minutes
 });
